@@ -7,31 +7,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Force Fix Dependencies
+      - name: Install Dependencies
         run: |
           sudo apt update
-          # On force l'installation de l'élément manquant séparément
-          sudo apt install -y libunwind-dev
-          # On répare le gestionnaire de paquets
-          sudo apt install -f
-
-      - name: Install System Dependencies
-        run: |
           sudo apt install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev lld openjdk-17-jdk unzip zip
-
-      - name: Install Python Tools
-        run: |
           pip install --upgrade pip
           pip install --upgrade "cython<3.0.0" wheel "setuptools<70.0.0" buildozer
 
       - name: Build with Buildozer
         run: |
+          # Verifie si le fichier est la (important pour le debug)
+          ls -la
           rm -rf .buildozer
-          yes | buildozer android debug
-        
-      - name: Upload APK
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Muscle-Agent-APK
-          path: bin/*.apk
+          # On lance buildozer SANS le "yes |" pour voir l'erreur de depart
+          buildozer -v android debug
