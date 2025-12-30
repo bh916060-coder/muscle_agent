@@ -1,29 +1,27 @@
 name: Forge Muscle APK
 on: [push]
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Recuperation des fichiers
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 2. Verification visuelle (Regarde le log de cette etape)
-        run: ls -R
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-      - name: 3. Installation des outils
+      - name: Install Buildozer dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git python3-dev libsqlite3-dev lld
+          sudo apt install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good libsqlite3-dev lld
           pip install --upgrade "cython<3.0.0" buildozer setuptools
 
-      - name: 4. Forge de l'APK
+      - name: Build with Buildozer
         run: |
-          # On se force a etre au bon endroit
+          # Nettoyage des anciennes tentatives
+          rm -rf .buildozer
+          # Lancement de la forge
           yes | buildozer android debug
-        
-      - name: 5. Livraison
-        uses: actions/upload-artifact@v4
-        with:
-          name: Muscle-Agent-APK
-          path: bin/*.apk
